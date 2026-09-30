@@ -1,1 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTM PHARMACIES - Event Signature Wall</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        .brand-heading {
+            font-family: 'Cinzel', serif;
+            color: #0b2046;
+            text-shadow: 0 2px 4px rgba(255, 255, 255, 0.6);
+        }
+
+        /* High-End Studio Stage Backdrop matching event photo */
+        .htm-studio-bg {
+            background: radial-gradient(circle at 50% 20%, #eef5fc 0%, #cbdcf2 35%, #9ab9e0 70%, #769bc9 100%);
+            position: relative;
+        }
+
+        /* Top Spotlight Beams */
+        .spotlight-beams {
+            background: repeating-linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.15) 8%,
+                transparent 16%,
+                rgba(255, 255, 255, 0.25) 24%,
+                transparent 32%
+            );
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 70%);
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 70%);
+        }
+
+        /* Floor reflection surface line */
+        .studio-floor {
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3) 0%, rgba(180, 205, 235, 0.6) 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 -10px 30px rgba(255, 255, 255, 0.3);
+        }
+
+        #sig-canvas {
+            touch-action: none;
+            cursor: crosshair;
+        }
+
+        /* Floating Signature Random Motion Animation */
+        @keyframes continuousFloat {
+            0% {
+                transform: translate(-50%, -50%) translate(0px, 0px) rotate(var(--rot, 0deg));
+            }
+            25% {
+                transform: translate(-50%, -50%) translate(var(--dx, 20px), var(--dy, -25px)) rotate(calc(var(--rot, 0deg) + 4deg));
+            }
+            50% {
+                transform: translate(-50%, -50%) translate(calc(var(--dx, 20px) * -0.8), calc(var(--dy, -25px) * 1.2)) rotate(calc(var(--rot, 0deg) - 3deg));
+            }
+            75% {
+                transform: translate(-50%, -50%) translate(calc(var(--dx, 20px) * 1.1), calc(var(--dy, -25px) * -0.6)) rotate(calc(var(--rot, 0deg) + 2deg));
+            }
+            100% {
+                transform: translate(-50%, -50%) translate(0px, 0px) rotate(var(--rot, 0deg));
+            }
+        }
+
+        .floating-signature {
+            position: absolute;
+            transition: left 2s cubic-bezier(0.25, 1, 0.5, 1), top 2s cubic-bezier(0.25, 1, 0.5, 1), transform 2s ease, filter 0.8s ease;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .floating-signature.random-state {
+            animation: continuousFloat var(--duration, 6s) ease-in-out infinite alternate;
+            filter: drop-shadow(0 4px 10px rgba(11, 32, 70, 0.4));
+        }
+
+        .floating-signature.finalized-state {
+            animation: none !important;
+            filter: drop-shadow(0 0 8px rgba(11, 32, 70, 0.9)) drop-shadow(0 0 16px rgba(59, 130, 246, 0.6));
+            opacity: 0.98;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-panel-light {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px rgba(11, 32, 70, 0.15);
+        }
+
+        /* Sharp glowing stencil backdrop for finalized 20 mode */
+        .stencil-20-backdrop {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        .stencil-20-backdrop.active {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+
+    <header class="glass-panel sticky top-0 z-50 px-4 py-3 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80">
+        <div class="flex items-center space-x-3">
+            <div class="bg-gradient-to-tr from-blue-700 to-indigo-900 p-2.5 rounded-xl shadow-lg shadow-blue-500/20">
+                <i class="fa-solid fa-file-signature text-xl text-white"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg text-white leading-tight">HTM PHARMACIES</h1>
+                <p class="text-xs text-slate-400">20th Anniversary Signature Display</p>
+            </div>
+        </div>
+
+        <!-- View Navigation Tabs -->
+        <nav class="flex items-center bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs sm:text-sm font-medium">
+            <button onclick="switchView('pad')" id="tab-pad" class="flex items-center space-x-2 px-3 sm:px-4 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white">
+                <i class="fa-solid fa-tablet-screen-button"></i>
+                <span>iPad View</span>
+            </button>
+            <button onclick="switchView('screen')" id="tab-screen" class="flex items-center space-x-2 px-3 sm:px-4 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white">
+                <i class="fa-solid fa-desktop"></i>
+                <span>Big Screen</span>
+            </button>
+            <button onclick="switchView('admin')" id="tab-admin" class="flex items-center space-x-2 px-3 sm:px-4 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white">
+                <i class="fa-solid fa-sliders"></i>
+                <span>Admin Panel</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Views Area -->
+    <main class="flex-1 relative flex flex-col overflow-hidden">
+
+        <section id="view-pad" class="hidden flex-1 flex flex-col p-4 sm:p-6 max-w-4xl mx-auto w-full">
+            <div class="glass-panel rounded-2xl p-4 sm:p-6 flex-1 flex flex-col border border-slate-800 shadow-2xl">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+                            <span>Welcome Attendee</span> 👋
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-400">Sign below to join HTM PHARMACIES 20th Anniversary Wall.</p>
+                    </div>
+
+                    <!-- Ink Color Options -->
+                    <div class="flex items-center space-x-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800">
+                        <span class="text-xs text-slate-400 pl-2">Ink Color:</span>
+                        <button onclick="setInkColor('#0b2046')" class="w-6 h-6 rounded-full bg-[#0b2046] border-2 border-white focus:scale-110 transition-transform" title="Dark Navy Ink"></button>
+                        <button onclick="setInkColor('#ffffff')" class="w-6 h-6 rounded-full bg-white border-2 border-slate-600 focus:scale-110 transition-transform" title="White Ink"></button>
+                        <button onclick="setInkColor('#1e40af')" class="w-6 h-6 rounded-full bg-blue-800 border-2 border-slate-600 focus:scale-110 transition-transform" title="Royal Blue Ink"></button>
+                        <button onclick="setInkColor('#dc2626')" class="w-6 h-6 rounded-full bg-red-600 border-2 border-slate-600 focus:scale-110 transition-transform" title="Red Ink"></button>
+                        <button onclick="setInkColor('#d97706')" class="w-6 h-6 rounded-full bg-amber-600 border-2 border-slate-600 focus:scale-110 transition-transform" title="Gold Ink"></button>
+                    </div>
+                </div>
+
+                <div class="flex-1 relative w-full bg-slate-900/90 rounded-xl border-2 border-dashed border-slate-700/80 overflow-hidden min-h-[320px]">
+                    <canvas id="sig-canvas" class="w-full h-full block touch-none"></canvas>
+                    <div id="canvas-placeholder" class="absolute inset-0 pointer-events-none flex items-center justify-center text-slate-500 text-sm font-medium">
+                        <i class="fa-solid fa-pen-nib mr-2"></i> Draw your signature here...
+                    </div>
+                </div>
+
+                <div class="mt-4 flex items-center justify-between gap-3">
+                    <button onclick="clearPadCanvas()" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 font-semibold text-sm transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Clear</span>
+                    </button>
+                    <button onclick="submitSignature()" class="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-gradient-to-r from-blue-700 to-indigo-800 hover:from-blue-600 hover:to-indigo-700 active:scale-95 text-white font-bold text-base shadow-lg shadow-blue-900/30 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Submit Signature</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-screen" class="hidden relative w-full h-[calc(100vh-65px)] htm-studio-bg overflow-hidden flex flex-col justify-between">
+
+            <!-- Spotlight Background Ray Overlay -->
+            <div class="spotlight-beams absolute inset-0 pointer-events-none z-0"></div>
+
+            <!-- Top Live Status Header -->
+            <div class="relative z-20 p-6 flex justify-between items-center pointer-events-none">
+                <div class="glass-panel-light px-5 py-2.5 rounded-2xl flex items-center gap-3">
+                    <span class="w-3 h-3 rounded-full bg-blue-700 animate-ping"></span>
+                    <span class="text-xs sm:text-sm font-bold text-[#0b2046]">Live Signatures: <strong id="screen-count" class="text-blue-900 text-base sm:text-lg ml-1">0</strong></span>
+                </div>
+                <div id="screen-status-badge" class="glass-panel-light px-5 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider text-[#0b2046]">
+                    Collecting Signatures
+                </div>
+            </div>
+
+            <!-- Sharp 20 Stencil Backdrop for ultra-clear readable silhouette -->
+            <div id="sharp-20-stencil" class="stencil-20-backdrop">
+                <svg class="w-full max-w-4xl h-auto max-h-[55vh] px-4" viewBox="0 0 1000 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#0b2046" stop-opacity="0.2" />
+                            <stop offset="50%" stop-color="#1e40af" stop-opacity="0.3" />
+                            <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.2" />
+                        </linearGradient>
+                        <filter id="stencilGlow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="6" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
+                    <!-- Crisp Sharp '2' Outer & Inner Contour -->
+                    <path d="M 120 170 C 120 90, 230 70, 310 90 C 390 110, 410 180, 390 230 C 360 300, 240 370, 140 420 L 420 420 L 420 460 L 100 460 L 100 410 C 220 350, 330 280, 340 220 C 350 180, 330 130, 280 120 C 220 110, 170 130, 160 180 Z" 
+                          fill="url(#glowGrad)" stroke="#0b2046" stroke-width="3" filter="url(#stencilGlow)" opacity="0.85" />
+                    <!-- Crisp Sharp '0' Outer & Inner Contour -->
+                    <path d="M 680 70 C 810 70, 880 150, 880 260 C 880 370, 810 460, 680 460 C 550 460, 480 370, 480 260 C 480 150, 550 70, 680 70 Z M 680 130 C 600 130, 550 180, 550 260 C 550 340, 600 400, 680 400 C 760 400, 810 340, 810 260 C 810 180, 760 130, 680 130 Z" 
+                          fill="url(#glowGrad)" stroke="#0b2046" stroke-width="3" filter="url(#stencilGlow)" opacity="0.85" />
+                </svg>
+            </div>
+
+            <!-- Floating Signatures Container (Covers entire backdrop screen) -->
+            <div id="display-stage" class="absolute inset-0 w-full h-full z-10 overflow-hidden pointer-events-none">
+                <!-- Signatures rendered dynamically -->
+            </div>
+
+            <!-- Bottom Studio Floor with HTM PHARMACIES Branding -->
+            <div class="relative z-20 w-full studio-floor pt-6 pb-8 flex flex-col items-center justify-center text-center">
+                <h2 class="brand-heading text-3xl sm:text-5xl md:text-6xl font-black tracking-widest leading-none">
+                    HTM PHARMACIES
+                </h2>
+
+                <div class="flex items-center gap-3 mt-2">
+                    <span class="w-12 sm:w-20 h-[2px] bg-[#0b2046]"></span>
+                    <p class="brand-heading text-xs sm:text-base font-extrabold tracking-[0.3em] uppercase">
+                        EST 2006
+                    </p>
+                    <span class="w-12 sm:w-20 h-[2px] bg-[#0b2046]"></span>
+                </div>
+
+                <!-- Floor Gloss Reflection Effect -->
+                <div class="opacity-15 transform scale-y-[-1] blur-[1px] pointer-events-none select-none mt-1 hidden sm:block">
+                    <h2 class="brand-heading text-3xl sm:text-5xl md:text-6xl font-black tracking-widest leading-none">
+                        HTM PHARMACIES
+                    </h2>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-admin" class="hidden flex-1 p-4 sm:p-6 max-w-6xl mx-auto w-full space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium">Total Signatures</p>
+                        <h3 id="admin-count" class="text-3xl font-extrabold text-white mt-1">0</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-xl">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium">Display Mode</p>
+                        <h3 id="admin-state-label" class="text-lg font-bold text-blue-400 mt-1">Random Floating</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-xl">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium">Sync Status</p>
+                        <h3 class="text-lg font-bold text-emerald-400 mt-1 flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> Active
+                        </h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl">
+                        <i class="fa-solid fa-wifi"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Controls -->
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex flex-wrap items-center gap-3">
+                    <button onclick="toggleFinalizeState()" id="btn-finalize" class="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-700 to-indigo-800 hover:from-blue-600 hover:to-indigo-700 active:scale-95 text-white font-bold text-sm shadow-lg shadow-blue-900/30 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-shapes"></i>
+                        <span id="btn-finalize-text">Finalize & Form "20"</span>
+                    </button>
+
+                    <button onclick="generateSampleSignatures(5)" class="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-semibold text-sm transition-all flex items-center gap-2 border border-slate-700">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>+5 Test Signatures</span>
+                    </button>
+                </div>
+
+                <button onclick="confirmResetAll()" class="px-4 py-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 active:scale-95 font-semibold text-sm transition-all flex items-center gap-2 border border-red-500/20">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>Clear All</span>
+                </button>
+            </div>
+
+            <!-- Signature Gallery -->
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-images text-blue-400"></i>
+                    <span>Submitted Signatures Gallery</span>
+                </h3>
+                <div id="admin-gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <div id="custom-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+        <div class="glass-panel max-w-md w-full p-6 rounded-2xl border border-slate-800 shadow-2xl space-y-4">
+            <h3 id="modal-title" class="text-lg font-bold text-white">Confirmation</h3>
+            <p id="modal-message" class="text-sm text-slate-300">Are you sure you want to perform this action?</p>
+            <div class="flex justify-end gap-3 pt-2">
+                <button id="modal-cancel-btn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold transition-all">Cancel</button>
+                <button id="modal-confirm-btn" class="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-sm font-bold shadow-lg shadow-red-600/25 transition-all">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY_SIGS = 'htm_event_signatures_data_v2';
+        const STORAGE_KEY_STATE = 'htm_event_signatures_state_v2';
+        const BROADCAST_CHANNEL_NAME = 'htm_event_signatures_channel';
+
+        let currentInkColor = '#0b2046';
+        let isDrawing = false;
+        let canvas = null;
+        let ctx = null;
+        let hasDrawnOnCanvas = false;
+        let currentView = 'pad';
+        let syncChannel = null;
+
+        try {
+            syncChannel = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
+        } catch (e) {
+            console.warn('BroadcastChannel fallback active.');
+        }
+
+        /* High-precision grid points for sharp "2" and "0" readability */
+        const TARGET_GRID_20 = [
+            // ================= DIGIT '2' =================
+            // Top Arch
+            {x: 18, y: 22}, {x: 21, y: 18}, {x: 25, y: 16}, {x: 29, y: 15}, {x: 33, y: 16}, {x: 37, y: 18}, {x: 40, y: 22}, {x: 41, y: 26},
+            {x: 22, y: 22}, {x: 26, y: 20}, {x: 30, y: 19}, {x: 34, y: 20}, {x: 38, y: 23},
+
+            // Arch to Diagonal Junction
+            {x: 40, y: 31}, {x: 38, y: 36}, {x: 35, y: 41}, {x: 32, y: 46}, {x: 28, y: 51}, {x: 24, y: 56}, {x: 20, y: 61}, {x: 16, y: 66},
+            {x: 36, y: 32}, {x: 33, y: 37}, {x: 29, y: 42}, {x: 25, y: 47}, {x: 21, y: 52}, {x: 17, y: 57}, {x: 14, y: 62},
+
+            // Bottom Base Line (Sharp horizontal bar)
+            {x: 13, y: 68}, {x: 17, y: 68}, {x: 21, y: 68}, {x: 25, y: 68}, {x: 29, y: 68}, {x: 33, y: 68}, {x: 37, y: 68}, {x: 41, y: 68},
+            {x: 15, y: 64}, {x: 19, y: 64}, {x: 23, y: 64}, {x: 27, y: 64}, {x: 31, y: 64}, {x: 35, y: 64}, {x: 39, y: 64},
+
+            // ================= DIGIT '0' =================
+            // Outer Oval
+            {x: 58, y: 16}, {x: 63, y: 15}, {x: 68, y: 14}, {x: 73, y: 14}, {x: 78, y: 15}, {x: 83, y: 16},
+            {x: 86, y: 21}, {x: 88, y: 27}, {x: 89, y: 34}, {x: 89, y: 42}, {x: 89, y: 50}, {x: 88, y: 57}, {x: 86, y: 62},
+            {x: 83, y: 66}, {x: 78, y: 68}, {x: 73, y: 69}, {x: 68, y: 69}, {x: 63, y: 68}, {x: 58, y: 66},
+            {x: 55, y: 62}, {x: 53, y: 57}, {x: 52, y: 50}, {x: 52, y: 42}, {x: 52, y: 34}, {x: 53, y: 27}, {x: 55, y: 21},
+
+            // Inner Oval Contour
+            {x: 61, y: 22}, {x: 68, y: 20}, {x: 75, y: 20}, {x: 80, y: 22},
+            {x: 83, y: 28}, {x: 84, y: 35}, {x: 84, y: 43}, {x: 84, y: 51}, {x: 82, y: 57},
+            {x: 79, y: 62}, {x: 72, y: 63}, {x: 65, y: 63}, {x: 60, y: 62},
+            {x: 57, y: 57}, {x: 56, y: 51}, {x: 56, y: 43}, {x: 56, y: 35}, {x: 57, y: 28}
+        ];
+
+        function getStoredSignatures() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY_SIGS)) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveStoredSignatures(sigs) {
+            localStorage.setItem(STORAGE_KEY_SIGS, JSON.stringify(sigs));
+        }
+
+        function getIsFinalizedState() {
+            return localStorage.getItem(STORAGE_KEY_STATE) === 'true';
+        }
+
+        function setIsFinalizedState(isFinalized) {
+            localStorage.setItem(STORAGE_KEY_STATE, isFinalized ? 'true' : 'false');
+        }
+
+        function notifyChange(action, payload = {}) {
+            if (syncChannel) {
+                syncChannel.postMessage({ action, payload, timestamp: Date.now() });
+            }
+            window.dispatchEvent(new Event('storage'));
+        }
+
+        function switchView(viewName) {
+            currentView = viewName;
+
+            document.getElementById('view-pad').classList.add('hidden');
+            document.getElementById('view-screen').classList.add('hidden');
+            document.getElementById('view-admin').classList.add('hidden');
+
+            ['pad', 'screen', 'admin'].forEach(v => {
+                const tab = document.getElementById(`tab-${v}`);
+                if (tab) {
+                    tab.className = 'flex items-center space-x-2 px-3 sm:px-4 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white';
+                }
+            });
+
+            const selectedView = document.getElementById(`view-${viewName}`);
+            if (selectedView) selectedView.classList.remove('hidden');
+
+            const activeTab = document.getElementById(`tab-${viewName}`);
+            if (activeTab) {
+                activeTab.className = 'flex items-center space-x-2 px-3 sm:px-4 py-1.5 rounded-lg transition-all bg-gradient-to-r from-blue-700 to-indigo-800 text-white font-semibold shadow-md shadow-blue-900/30';
+            }
+
+            if (viewName === 'pad') {
+                setTimeout(initCanvas, 50);
+            } else if (viewName === 'screen') {
+                renderBigScreen();
+            } else if (viewName === 'admin') {
+                renderAdminGallery();
+            }
+        }
+
+        function initCanvas() {
+            canvas = document.getElementById('sig-canvas');
+            if (!canvas) return;
+
+            const container = canvas.parentElement;
+            const dpr = window.devicePixelRatio || 1;
+            
+            canvas.width = container.clientWidth * dpr;
+            canvas.height = container.clientHeight * dpr;
+
+            ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+            
+            ctx.strokeStyle = currentInkColor;
+            ctx.lineWidth = 3.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            const getPos = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: clientX - rect.left,
+                    y: clientY - rect.top
+                };
+            };
+
+            const startDrawing = (e) => {
+                isDrawing = true;
+                hasDrawnOnCanvas = true;
+                document.getElementById('canvas-placeholder')?.classList.add('hidden');
+                const pos = getPos(e);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            };
+
+            const draw = (e) => {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            };
+
+            const stopDrawing = () => {
+                if (isDrawing) {
+                    ctx.closePath();
+                    isDrawing = false;
+                }
+            };
+
+            canvas.onpointerdown = startDrawing;
+            canvas.onpointermove = draw;
+            canvas.onpointerup = stopDrawing;
+            canvas.onpointercancel = stopDrawing;
+        }
+
+        function setInkColor(color) {
+            currentInkColor = color;
+            if (ctx) ctx.strokeStyle = color;
+        }
+
+        function clearPadCanvas() {
+            if (!canvas || !ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hasDrawnOnCanvas = false;
+            const placeholder = document.getElementById('canvas-placeholder');
+            if (placeholder) placeholder.classList.remove('hidden');
+        }
+
+        function getTrimmedCanvasDataUrl(sourceCanvas) {
+            const context = sourceCanvas.getContext('2d');
+            const width = sourceCanvas.width;
+            const height = sourceCanvas.height;
+            const imgData = context.getImageData(0, 0, width, height);
+            const data = imgData.data;
+
+            let minX = width, minY = height, maxX = 0, maxY = 0;
+            let found = false;
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const alpha = data[(y * width + x) * 4 + 3];
+                    if (alpha > 10) {
+                        if (x < minX) minX = x;
+                        if (x > maxX) maxX = x;
+                        if (y < minY) minY = y;
+                        if (y > maxY) maxY = y;
+                        found = true;
+                    }
+                }
+            }
+
+            if (!found) return sourceCanvas.toDataURL('image/png');
+
+            const padding = 12;
+            minX = Math.max(0, minX - padding);
+            minY = Math.max(0, minY - padding);
+            maxX = Math.min(width, maxX + padding);
+            maxY = Math.min(height, maxY + padding);
+
+            const cropWidth = maxX - minX;
+            const cropHeight = maxY - minY;
+
+            const trimmedCanvas = document.createElement('canvas');
+            trimmedCanvas.width = cropWidth;
+            trimmedCanvas.height = cropHeight;
+            const trimmedCtx = trimmedCanvas.getContext('2d');
+
+            trimmedCtx.drawImage(
+                sourceCanvas,
+                minX, minY, cropWidth, cropHeight,
+                0, 0, cropWidth, cropHeight
+            );
+
+            return trimmedCanvas.toDataURL('image/png');
+        }
+
+        function submitSignature() {
+            if (!hasDrawnOnCanvas) {
+                showNotification('Please draw a signature before submitting!', 'error');
+                return;
+            }
+
+            const pngData = getTrimmedCanvasDataUrl(canvas);
+            const newSignature = {
+                id: 'sig_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+                pngData: pngData,
+                timestamp: Date.now(),
+                randomX: Math.floor(Math.random() * 70) + 15,
+                randomY: Math.floor(Math.random() * 55) + 20,
+                rotation: Math.floor(Math.random() * 24) - 12,
+                duration: (4.5 + Math.random() * 3.5).toFixed(1) + 's'
+            };
+
+            const signatures = getStoredSignatures();
+            signatures.push(newSignature);
+            saveStoredSignatures(signatures);
+
+            notifyChange('NEW_SIGNATURE', newSignature);
+            clearPadCanvas();
+            showNotification('Signature submitted successfully!', 'success');
+        }
+
+        function renderBigScreen() {
+            const stage = document.getElementById('display-stage');
+            if (!stage) return;
+
+            const signatures = getStoredSignatures();
+            const isFinalized = getIsFinalizedState();
+
+            const countEl = document.getElementById('screen-count');
+            if (countEl) countEl.textContent = signatures.length;
+
+            const stencilEl = document.getElementById('sharp-20-stencil');
+            if (stencilEl) {
+                if (isFinalized) {
+                    stencilEl.classList.add('active');
+                } else {
+                    stencilEl.classList.remove('active');
+                }
+            }
+
+            const badge = document.getElementById('screen-status-badge');
+            if (badge) {
+                if (isFinalized) {
+                    badge.textContent = 'FINALIZED IN "20" SHAPE';
+                    badge.className = 'glass-panel-light px-5 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider text-blue-900 border border-blue-400';
+                } else {
+                    badge.textContent = 'COLLECTING SIGNATURES';
+                    badge.className = 'glass-panel-light px-5 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider text-[#0b2046] border border-white/50';
+                }
+            }
+
+            if (signatures.length === 0) {
+                stage.innerHTML = `
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-[#0b2046]/70 gap-3">
+                        <i class="fa-solid fa-pen-nib text-4xl animate-bounce text-[#0b2046]"></i>
+                        <p class="text-base font-bold">Waiting for attendee signatures...</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let renderList = [];
+
+            if (isFinalized) {
+                const totalTargetPoints = TARGET_GRID_20.length;
+                for (let i = 0; i < totalTargetPoints; i++) {
+                    const srcSig = signatures[i % signatures.length];
+                    renderList.push({
+                        id: `final_${i}`,
+                        pngData: srcSig.pngData,
+                        targetPos: TARGET_GRID_20[i]
+                    });
+                }
+            } else {
+                renderList = signatures.map(sig => ({
+                    id: sig.id,
+                    pngData: sig.pngData,
+                    randomX: sig.randomX,
+                    randomY: sig.randomY,
+                    rotation: sig.rotation,
+                    duration: sig.duration
+                }));
+            }
+
+            const existingElems = new Map();
+            stage.querySelectorAll('.floating-signature').forEach(el => {
+                existingElems.set(el.dataset.id, el);
+            });
+
+            renderList.forEach((item, idx) => {
+                let imgEl = existingElems.get(item.id);
+
+                if (!imgEl) {
+                    imgEl = document.createElement('img');
+                    imgEl.dataset.id = item.id;
+                    imgEl.src = item.pngData;
+                    imgEl.className = 'floating-signature h-10 sm:h-12 md:h-14 object-contain';
+                    stage.appendChild(imgEl);
+                }
+
+                existingElems.delete(item.id);
+
+                if (isFinalized) {
+                    imgEl.classList.remove('random-state');
+                    imgEl.classList.add('finalized-state');
+                    imgEl.style.left = `${item.targetPos.x}%`;
+                    imgEl.style.top = `${item.targetPos.y}%`;
+                    imgEl.style.transform = `translate(-50%, -50%) scale(0.95)`;
+                } else {
+                    imgEl.classList.remove('finalized-state');
+                    imgEl.classList.add('random-state');
+                    imgEl.style.left = `${item.randomX}%`;
+                    imgEl.style.top = `${item.randomY}%`;
+                    imgEl.style.setProperty('--rot', `${item.rotation}deg`);
+                    imgEl.style.setProperty('--duration', item.duration || '6s');
+                    imgEl.style.setProperty('--dx', `${(idx % 2 === 0 ? 1 : -1) * (18 + (idx % 12))}px`);
+                    imgEl.style.setProperty('--dy', `${(idx % 3 === 0 ? -1 : 1) * (20 + (idx % 15))}px`);
+                    imgEl.style.transform = `translate(-50%, -50%) rotate(${item.rotation}deg)`;
+                }
+            });
+
+            existingElems.forEach(el => el.remove());
+        }
+
+        function renderAdminGallery() {
+            const gallery = document.getElementById('admin-gallery');
+            if (!gallery) return;
+
+            const signatures = getStoredSignatures();
+            const isFinalized = getIsFinalizedState();
+
+            const adminCount = document.getElementById('admin-count');
+            const adminStateLabel = document.getElementById('admin-state-label');
+            const btnFinalizeText = document.getElementById('btn-finalize-text');
+
+            if (adminCount) adminCount.textContent = signatures.length;
+            if (adminStateLabel) adminStateLabel.textContent = isFinalized ? 'Finalized ("20" Shape)' : 'Random Floating';
+            if (btnFinalizeText) btnFinalizeText.textContent = isFinalized ? 'Reset to Random Floating' : 'Finalize & Form "20"';
+
+            gallery.innerHTML = '';
+
+            if (signatures.length === 0) {
+                gallery.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-slate-500 text-sm">
+                        No signatures submitted yet. Open iPad view or click "+5 Test Signatures".
+                    </div>
+                `;
+                return;
+            }
+
+            signatures.forEach((sig, index) => {
+                const card = document.createElement('div');
+                card.className = 'relative group glass-panel p-3 rounded-xl border border-slate-800 flex flex-col items-center justify-between bg-slate-900/50 hover:border-slate-700 transition-all';
+                card.innerHTML = `
+                    <div class="w-full h-20 flex items-center justify-center p-1 bg-white/90 rounded-lg border border-slate-300 overflow-hidden">
+                        <img src="${sig.pngData}" class="max-h-full max-w-full object-contain">
+                    </div>
+                    <div class="mt-2 w-full flex items-center justify-between text-xs text-slate-400">
+                        <span>#${index + 1}</span>
+                        <button onclick="deleteSignature('${sig.id}')" class="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-500/10 transition-colors" title="Delete Signature">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                gallery.appendChild(card);
+            });
+        }
+
+        function deleteSignature(id) {
+            let signatures = getStoredSignatures();
+            signatures = signatures.filter(s => s.id !== id);
+            saveStoredSignatures(signatures);
+            notifyChange('DELETE_SIGNATURE', { id });
+            showNotification('Signature deleted', 'info');
+        }
+
+        function toggleFinalizeState() {
+            const currentState = getIsFinalizedState();
+            setIsFinalizedState(!currentState);
+            notifyChange('STATE_CHANGE', { isFinalized: !currentState });
+            showNotification(!currentState ? 'Signatures assembled into "20"!' : 'Returned to floating mode.', 'info');
+        }
+
+        function confirmResetAll() {
+            showConfirmModal(
+                'Clear All Signatures?',
+                'This will permanently delete all submitted signatures from the display wall.',
+                () => {
+                    saveStoredSignatures([]);
+                    setIsFinalizedState(false);
+                    notifyChange('RESET_ALL');
+                    showNotification('All signatures cleared.', 'info');
+                }
+            );
+        }
+
+        function generateSampleSignatures(count = 5) {
+            const colors = ['#0b2046', '#1e40af', '#dc2626', '#d97706', '#047857'];
+            const sampleCanvas = document.createElement('canvas');
+            sampleCanvas.width = 300;
+            sampleCanvas.height = 150;
+            const ctxSample = sampleCanvas.getContext('2d');
+
+            const signatures = getStoredSignatures();
+
+            for (let i = 0; i < count; i++) {
+                ctxSample.clearRect(0, 0, 300, 150);
+                const color = colors[Math.floor(Math.random() * colors.length)];
+
+                ctxSample.strokeStyle = color;
+                ctxSample.lineWidth = 3.5;
+                ctxSample.lineCap = 'round';
+                ctxSample.lineJoin = 'round';
+
+                ctxSample.beginPath();
+                ctxSample.moveTo(30, 80);
+                ctxSample.bezierCurveTo(70, 20, 120, 120, 180, 50);
+                ctxSample.bezierCurveTo(220, 10, 240, 110, 270, 70);
+                ctxSample.stroke();
+
+                ctxSample.beginPath();
+                ctxSample.moveTo(25, 110);
+                ctxSample.quadraticCurveTo(150, 145, 275, 100);
+                ctxSample.stroke();
+
+                const pngData = getTrimmedCanvasDataUrl(sampleCanvas);
+
+                signatures.push({
+                    id: 'sig_sample_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2, 5),
+                    pngData: pngData,
+                    timestamp: Date.now(),
+                    randomX: Math.floor(Math.random() * 70) + 15,
+                    randomY: Math.floor(Math.random() * 55) + 20,
+                    rotation: Math.floor(Math.random() * 24) - 12,
+                    duration: (4.5 + Math.random() * 3.5).toFixed(1) + 's'
+                });
+            }
+
+            saveStoredSignatures(signatures);
+            notifyChange('GENERATE_SAMPLES', { count });
+            showNotification(`Added ${count} sample signatures!`, 'success');
+        }
+
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            const bgClass = type === 'error' ? 'bg-red-600/90' : type === 'success' ? 'bg-emerald-600/90' : 'bg-blue-600/90';
+
+            toast.className = `pointer-events-auto px-4 py-3 rounded-xl ${bgClass} text-white font-medium text-xs sm:text-sm shadow-xl backdrop-blur-md flex items-center gap-2 transition-all transform translate-y-2 opacity-0`;
+            toast.innerHTML = `
+                <i class="fa-solid ${type === 'error' ? 'fa-triangle-exclamation' : type === 'success' ? 'fa-circle-check' : 'fa-circle-info'}"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.remove('translate-y-2', 'opacity-0'));
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function showConfirmModal(title, message, onConfirm) {
+            const modal = document.getElementById('custom-modal');
+            const titleEl = document.getElementById('modal-title');
+            const msgEl = document.getElementById('modal-message');
+            const cancelBtn = document.getElementById('modal-cancel-btn');
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+
+            if (!modal) return;
+
+            titleEl.textContent = title;
+            msgEl.textContent = message;
+            modal.classList.remove('hidden');
+
+            const closeModal = () => {
+                modal.classList.add('hidden');
+                cancelBtn.onclick = null;
+                confirmBtn.onclick = null;
+            };
+
+            cancelBtn.onclick = closeModal;
+            confirmBtn.onclick = () => {
+                closeModal();
+                if (onConfirm) onConfirm();
+            };
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewParam = urlParams.get('view');
+            if (viewParam && ['pad', 'screen', 'admin'].includes(viewParam)) {
+                switchView(viewParam);
+            } else {
+                switchView('pad');
+            }
+
+            if (syncChannel) {
+                syncChannel.onmessage = () => {
+                    if (currentView === 'screen') renderBigScreen();
+                    if (currentView === 'admin') renderAdminGallery();
+                };
+            }
+
+            window.addEventListener('storage', () => {
+                if (currentView === 'screen') renderBigScreen();
+                if (currentView === 'admin') renderAdminGallery();
+            });
+
+            window.addEventListener('resize', () => {
+                if (currentView === 'pad') {
+                    initCanvas();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
