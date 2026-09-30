@@ -419,7 +419,15 @@
         async function initFirebase() {
             updateConnBadge('connecting', 'Connecting Firestore...');
 
-            let firebaseConfig = null;
+            // Pre-configured Firebase keys for htm-signature-wall
+            let firebaseConfig = {
+                "apiKey": "AIzaSyBWNSCmlveUIpu7ySEmaJ2VH1MoPKyB66s",
+                "authDomain": "htm-signature-wall.firebaseapp.com",
+                "projectId": "htm-signature-wall",
+                "storageBucket": "htm-signature-wall.firebasestorage.app",
+                "messagingSenderId": "531036048736",
+                "appId": "1:531036048736:web:c4b1f45e9616c929ab6205"
+            };
 
             if (typeof __firebase_config !== 'undefined' && __firebase_config) {
                 try {
@@ -427,16 +435,9 @@
                 } catch(e){}
             }
 
-            if (!firebaseConfig) {
-                const savedConfigStr = localStorage.getItem(CUSTOM_FIREBASE_KEY);
-                if (savedConfigStr) {
-                    try { firebaseConfig = JSON.parse(savedConfigStr); } catch(e){}
-                }
-            }
-
-            if (!firebaseConfig) {
-                updateConnBadge('offline', 'Add Firebase Key in Admin');
-                return;
+            const savedConfigStr = localStorage.getItem(CUSTOM_FIREBASE_KEY);
+            if (savedConfigStr) {
+                try { firebaseConfig = JSON.parse(savedConfigStr); } catch(e){}
             }
 
             try {
