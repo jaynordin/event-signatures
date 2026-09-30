@@ -99,9 +99,9 @@
         }
 
         .glass-panel-light {
-            background: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.35);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow: 0 8px 32px rgba(11, 32, 70, 0.15);
         }
 
@@ -136,11 +136,17 @@
             </div>
         </div>
 
+        <!-- Connection Status Badge -->
+        <div id="header-conn-status" class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+            <span id="conn-status-text">Initializing Firebase...</span>
+        </div>
+
         <!-- View Navigation Tabs -->
         <nav class="flex items-center bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs sm:text-sm font-medium">
             <button onclick="switchView('pad')" id="tab-pad" class="flex items-center space-x-2 px-3 sm:px-4 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white">
                 <i class="fa-solid fa-tablet-screen-button"></i>
-                <span>iPad View</span>
+                <span>Smart Tab</span>
             </button>
             <button onclick="switchView('screen')" id="tab-screen" class="flex items-center space-x-2 px-3 sm:px-4 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white">
                 <i class="fa-solid fa-desktop"></i>
@@ -148,14 +154,13 @@
             </button>
             <button onclick="switchView('admin')" id="tab-admin" class="flex items-center space-x-2 px-3 sm:px-4 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white">
                 <i class="fa-solid fa-sliders"></i>
-                <span>Admin Panel</span>
+                <span>Admin</span>
             </button>
         </nav>
     </header>
 
     <main class="flex-1 relative flex flex-col overflow-hidden">
 
-        <!-- iPad Signing Pad View -->
         <section id="view-pad" class="hidden flex-1 flex flex-col p-4 sm:p-6 max-w-4xl mx-auto w-full">
             <div class="glass-panel rounded-2xl p-4 sm:p-6 flex-1 flex flex-col border border-slate-800 shadow-2xl">
                 <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
@@ -163,12 +168,12 @@
                         <h2 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
                             <span>Welcome Attendee</span> 👋
                         </h2>
-                        <p class="text-xs sm:text-sm text-slate-400">Sign below to join HTM PHARMACIES 20th Anniversary Wall.</p>
+                        <p class="text-xs sm:text-sm text-slate-400">Please sign below to join HTM PHARMACIES 20th Anniversary Wall.</p>
                     </div>
 
                     <!-- Ink Color Selection -->
                     <div class="flex items-center space-x-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800">
-                        <span class="text-xs text-slate-400 pl-2">Ink Color:</span>
+                        <span class="text-xs text-slate-400 pl-2">Ink:</span>
                         <button onclick="setInkColor('#0b2046')" class="w-6 h-6 rounded-full bg-[#0b2046] border-2 border-white focus:scale-110 transition-transform" title="Dark Navy Ink"></button>
                         <button onclick="setInkColor('#ffffff')" class="w-6 h-6 rounded-full bg-white border-2 border-slate-600 focus:scale-110 transition-transform" title="White Ink"></button>
                         <button onclick="setInkColor('#1e40af')" class="w-6 h-6 rounded-full bg-blue-800 border-2 border-slate-600 focus:scale-110 transition-transform" title="Royal Blue Ink"></button>
@@ -197,20 +202,22 @@
             </div>
         </section>
 
-        <!-- Big Screen View -->
         <section id="view-screen" class="hidden relative w-full h-[calc(100vh-65px)] htm-studio-bg overflow-hidden flex flex-col justify-between">
 
             <!-- Spotlight Ray Overlay -->
             <div class="spotlight-beams absolute inset-0 pointer-events-none z-0"></div>
 
             <!-- Header Bar -->
-            <div class="relative z-20 p-6 flex justify-between items-center pointer-events-none">
-                <div class="glass-panel-light px-5 py-2.5 rounded-2xl flex items-center gap-3">
+            <div class="relative z-20 p-4 sm:p-6 flex justify-between items-center pointer-events-none">
+                <div class="glass-panel-light px-4 sm:px-5 py-2.5 rounded-2xl flex items-center gap-3">
                     <span class="w-3 h-3 rounded-full bg-blue-700 animate-ping"></span>
                     <span class="text-xs sm:text-sm font-bold text-[#0b2046]">Live Signatures: <strong id="screen-count" class="text-blue-900 text-base sm:text-lg ml-1">0</strong></span>
                 </div>
-                <div id="screen-status-badge" class="glass-panel-light px-5 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider text-[#0b2046]">
-                    Collecting Signatures
+
+                <div class="flex items-center gap-2 pointer-events-auto">
+                    <div id="screen-status-badge" class="glass-panel-light px-4 sm:px-5 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider text-[#0b2046]">
+                        Collecting Signatures
+                    </div>
                 </div>
             </div>
 
@@ -260,7 +267,6 @@
             </div>
         </section>
 
-        <!-- Admin View -->
         <section id="view-admin" class="hidden flex-1 p-4 sm:p-6 max-w-6xl mx-auto w-full space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
@@ -285,13 +291,13 @@
 
                 <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-slate-400 font-medium">Cloud Real-Time Sync</p>
+                        <p class="text-xs text-slate-400 font-medium">Firebase Realtime Sync</p>
                         <h3 id="sync-status" class="text-lg font-bold text-emerald-400 mt-1 flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> Active Cloud
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> Firestore Active
                         </h3>
                     </div>
                     <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl">
-                        <i class="fa-solid fa-cloud"></i>
+                        <i class="fa-solid fa-fire"></i>
                     </div>
                 </div>
             </div>
@@ -307,6 +313,11 @@
                     <button onclick="generateSampleSignatures(5)" class="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-semibold text-sm transition-all flex items-center gap-2 border border-slate-700">
                         <i class="fa-solid fa-plus"></i>
                         <span>+5 Test Signatures</span>
+                    </button>
+
+                    <button onclick="toggleFirebaseConfigModal()" class="px-4 py-3 rounded-xl bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 font-semibold text-sm transition-all flex items-center gap-2 border border-indigo-700/50">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Firebase Keys</span>
                     </button>
                 </div>
 
@@ -328,8 +339,28 @@
 
     </main>
 
+    <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
+    <!-- Firebase Config Modal for Custom Keys on GitHub Pages -->
+    <div id="firebase-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+        <div class="glass-panel max-w-lg w-full p-6 rounded-2xl border border-slate-800 shadow-2xl space-y-4">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-fire text-amber-500"></i>
+                <span>Firebase Configuration</span>
+            </h3>
+            <p class="text-xs text-slate-300">
+                If deployed on custom GitHub Pages without default environment variables, paste your Firebase Config JSON object below to connect your Smart Tab and Big Screen.
+            </p>
+            <textarea id="firebase-config-json" rows="6" placeholder='{"apiKey": "AIzaSy...", "authDomain": "...", "projectId": "...", "appId": "..."}' class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs font-mono text-emerald-400 focus:outline-none focus:border-blue-500"></textarea>
+            <div class="flex justify-end gap-3">
+                <button onclick="toggleFirebaseConfigModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold transition-all">Cancel</button>
+                <button onclick="saveCustomFirebaseConfig()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-blue-700 to-indigo-800 hover:from-blue-600 text-white text-sm font-bold shadow-lg shadow-blue-900/30 transition-all">Save & Connect</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
     <div id="custom-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
         <div class="glass-panel max-w-md w-full p-6 rounded-2xl border border-slate-800 shadow-2xl space-y-4">
             <h3 id="modal-title" class="text-lg font-bold text-white">Confirmation</h3>
@@ -346,9 +377,8 @@
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const STORAGE_KEY_SIGS = 'htm_event_signatures_data_v3';
-        const STORAGE_KEY_STATE = 'htm_event_signatures_state_v3';
-        const BROADCAST_CHANNEL_NAME = 'htm_event_signatures_channel';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'htm-pharmacies-20th';
+        const CUSTOM_FIREBASE_KEY = 'htm_custom_firebase_config_v1';
 
         // High precision matrix covering body and inner contour of 2 and 0
         const TARGET_GRID_20 = [
@@ -377,172 +407,186 @@
         let ctx = null;
         let hasDrawnOnCanvas = false;
         let currentView = 'pad';
-        let syncChannel = null;
 
-        let db = null;
+        let app = null;
         let auth = null;
+        let db = null;
         let currentUser = null;
-        let isCloudActive = false;
+
         let memorySignatures = [];
         let memoryIsFinalized = false;
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'htm-event-2026';
-
         async function initFirebase() {
-            try {
-                let firebaseConfig = null;
-                if (typeof __firebase_config !== 'undefined') {
+            updateConnBadge('connecting', 'Connecting Firestore...');
+
+            let firebaseConfig = null;
+
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                try {
                     firebaseConfig = JSON.parse(__firebase_config);
-                } else if (window.myFirebaseConfig) {
-                    firebaseConfig = window.myFirebaseConfig;
-                }
+                } catch(e){}
+            }
 
-                if (!firebaseConfig) {
-                    console.log('Firebase config not provided. Running in Local Storage mode.');
-                    loadFromLocalStorage();
-                    return;
+            if (!firebaseConfig) {
+                const savedConfigStr = localStorage.getItem(CUSTOM_FIREBASE_KEY);
+                if (savedConfigStr) {
+                    try { firebaseConfig = JSON.parse(savedConfigStr); } catch(e){}
                 }
+            }
 
-                const app = initializeApp(firebaseConfig);
+            if (!firebaseConfig) {
+                updateConnBadge('offline', 'Add Firebase Key in Admin');
+                return;
+            }
+
+            try {
+                app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
 
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    const userCredential = await signInWithCustomToken(auth, __initial_auth_token);
-                    currentUser = userCredential.user;
+                    const userCred = await signInWithCustomToken(auth, __initial_auth_token);
+                    currentUser = userCred.user;
                 } else {
-                    const userCredential = await signInAnonymously(auth);
-                    currentUser = userCredential.user;
+                    const userCred = await signInAnonymously(auth);
+                    currentUser = userCred.user;
                 }
 
-                isCloudActive = true;
-                const syncStatusEl = document.getElementById('sync-status');
-                if (syncStatusEl) {
-                    syncStatusEl.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> Active Cloud';
-                }
+                if (!currentUser) return;
 
-                // Listen to Signatures Collection
-                const sigsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'signatures');
-                onSnapshot(sigsColRef, (snapshot) => {
-                    const loaded = [];
-                    snapshot.forEach(doc => {
-                        loaded.push({ id: doc.id, ...doc.data() });
-                    });
-                    loaded.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                    memorySignatures = loaded;
-                    saveStoredSignaturesLocal(loaded);
-                    refreshCurrentView();
-                }, (err) => console.error('Cloud Signatures error:', err));
+                updateConnBadge('connected', '🔥 Firestore Sync Active');
+                setupFirestoreListeners();
 
-                // Listen to Display State Setting Document
-                const stateDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'displayState');
-                onSnapshot(stateDocRef, (snap) => {
-                    if (snap.exists()) {
-                        memoryIsFinalized = !!snap.data().isFinalized;
-                        setIsFinalizedLocal(memoryIsFinalized);
-                        refreshCurrentView();
-                    }
-                }, (err) => console.error('Cloud Settings error:', err));
-
-            } catch (e) {
-                console.warn('Firebase init error, falling back to local mode:', e);
-                loadFromLocalStorage();
+            } catch (err) {
+                console.error("Firebase Initialization Error:", err);
+                updateConnBadge('offline', 'Firebase Auth Error');
             }
         }
 
-        function loadFromLocalStorage() {
-            try {
-                memorySignatures = JSON.parse(localStorage.getItem(STORAGE_KEY_SIGS)) || [];
-                memoryIsFinalized = localStorage.getItem(STORAGE_KEY_STATE) === 'true';
-            } catch (e) {
-                memorySignatures = [];
-                memoryIsFinalized = false;
+        function setupFirestoreListeners() {
+            if (!db || !currentUser) return;
+
+            // STRICT PATH RULE 1: Public data path
+            const sigsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'signatures');
+            
+            // RULE 2: Simple query without complex indexes
+            onSnapshot(sigsColRef, (snapshot) => {
+                const loaded = [];
+                snapshot.forEach(docSnap => {
+                    loaded.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                loaded.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                memorySignatures = loaded;
+                refreshCurrentView();
+            }, (error) => {
+                console.error("Firestore Signatures snapshot error:", error);
+            });
+
+            const configDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'app_state', 'current');
+            onSnapshot(configDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    memoryIsFinalized = !!docSnap.data().isFinalized;
+                } else {
+                    memoryIsFinalized = false;
+                }
+                refreshCurrentView();
+            }, (error) => {
+                console.error("Firestore State snapshot error:", error);
+            });
+        }
+
+        function updateConnBadge(status, text) {
+            const badge = document.getElementById('header-conn-status');
+            const label = document.getElementById('conn-status-text');
+            const syncStatusLabel = document.getElementById('sync-status');
+            if (!badge || !label) return;
+
+            label.textContent = text;
+            if (status === 'connected') {
+                badge.className = 'flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+                badge.querySelector('span').className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+                if (syncStatusLabel) {
+                    syncStatusLabel.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> Firestore Active`;
+                    syncStatusLabel.className = 'text-lg font-bold text-emerald-400 mt-1 flex items-center gap-2';
+                }
+            } else if (status === 'connecting') {
+                badge.className = 'flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20';
+                badge.querySelector('span').className = 'w-2 h-2 rounded-full bg-amber-400 animate-ping';
+            } else {
+                badge.className = 'flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700';
+                badge.querySelector('span').className = 'w-2 h-2 rounded-full bg-slate-500';
+                if (syncStatusLabel) {
+                    syncStatusLabel.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span> Disconnected`;
+                    syncStatusLabel.className = 'text-lg font-bold text-slate-400 mt-1 flex items-center gap-2';
+                }
             }
-        }
-
-        function saveStoredSignaturesLocal(sigs) {
-            try {
-                localStorage.setItem(STORAGE_KEY_SIGS, JSON.stringify(sigs));
-            } catch(e){}
-        }
-
-        function setIsFinalizedLocal(val) {
-            try {
-                localStorage.setItem(STORAGE_KEY_STATE, val ? 'true' : 'false');
-            } catch(e){}
         }
 
         async function saveSignatureToCloud(newSig) {
-            if (isCloudActive && db) {
-                try {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'signatures', newSig.id);
-                    await setDoc(docRef, newSig);
-                    return;
-                } catch (e) {
-                    console.error('Error saving signature to cloud:', e);
-                }
+            if (!db || !currentUser) {
+                // Local fallback
+                memorySignatures.push(newSig);
+                refreshCurrentView();
+                return;
             }
-            memorySignatures.push(newSig);
-            saveStoredSignaturesLocal(memorySignatures);
-            notifyLocalChange();
+
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'signatures', newSig.id);
+                await setDoc(docRef, newSig);
+            } catch (e) {
+                console.error("Error saving signature to Firestore:", e);
+                showNotification('Failed to send signature to cloud', 'error');
+            }
         }
 
         async function deleteSignatureFromCloud(id) {
-            if (isCloudActive && db) {
-                try {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'signatures', id);
-                    await deleteDoc(docRef);
-                    return;
-                } catch(e) {
-                    console.error('Error deleting from cloud:', e);
-                }
+            if (!db || !currentUser) {
+                memorySignatures = memorySignatures.filter(s => s.id !== id);
+                refreshCurrentView();
+                return;
             }
-            memorySignatures = memorySignatures.filter(s => s.id !== id);
-            saveStoredSignaturesLocal(memorySignatures);
-            notifyLocalChange();
+
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'signatures', id);
+                await deleteDoc(docRef);
+            } catch(e) {
+                console.error("Error deleting signature from Firestore:", e);
+            }
         }
 
         async function setFinalizedStateCloud(isFinalized) {
-            if (isCloudActive && db) {
-                try {
-                    const stateDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'displayState');
-                    await setDoc(stateDocRef, { isFinalized, updatedAt: Date.now() });
-                    return;
-                } catch(e) {
-                    console.error('Error setting finalized state cloud:', e);
-                }
+            if (!db || !currentUser) {
+                memoryIsFinalized = isFinalized;
+                refreshCurrentView();
+                return;
             }
-            memoryIsFinalized = isFinalized;
-            setIsFinalizedLocal(isFinalized);
-            notifyLocalChange();
+
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'app_state', 'current');
+                await setDoc(docRef, { isFinalized: isFinalized, updatedAt: Date.now() }, { merge: true });
+            } catch (e) {
+                console.error("Error setting finalized state:", e);
+            }
         }
 
         async function clearAllSignaturesCloud() {
-            if (isCloudActive && db) {
-                try {
-                    for (const sig of memorySignatures) {
-                        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'signatures', sig.id);
-                        await deleteDoc(docRef);
-                    }
-                    await setFinalizedStateCloud(false);
-                    return;
-                } catch (e) {
-                    console.error('Error clearing all cloud:', e);
-                }
+            if (!db || !currentUser) {
+                memorySignatures = [];
+                memoryIsFinalized = false;
+                refreshCurrentView();
+                return;
             }
-            memorySignatures = [];
-            memoryIsFinalized = false;
-            saveStoredSignaturesLocal([]);
-            setIsFinalizedLocal(false);
-            notifyLocalChange();
-        }
 
-        function notifyLocalChange() {
-            if (syncChannel) {
-                syncChannel.postMessage({ timestamp: Date.now() });
+            try {
+                for (const sig of memorySignatures) {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'signatures', sig.id);
+                    await deleteDoc(docRef);
+                }
+                const configDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'app_state', 'current');
+                await setDoc(configDocRef, { isFinalized: false, updatedAt: Date.now() });
+            } catch(e) {
+                console.error("Error clearing signatures:", e);
             }
-            window.dispatchEvent(new Event('storage'));
-            refreshCurrentView();
         }
 
         function refreshCurrentView() {
@@ -711,15 +755,15 @@
                 id: 'sig_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
                 pngData: pngData,
                 timestamp: Date.now(),
-                randomX: Math.floor(Math.random() * 70) + 15,
-                randomY: Math.floor(Math.random() * 55) + 20,
+                randomX: Math.floor(Math.random() * 65) + 18,
+                randomY: Math.floor(Math.random() * 50) + 22,
                 rotation: Math.floor(Math.random() * 24) - 12,
                 duration: (4.5 + Math.random() * 3.5).toFixed(1) + 's'
             };
 
             await saveSignatureToCloud(newSignature);
             clearPadCanvas();
-            showNotification('Signature submitted to Big Screen!', 'success');
+            showNotification('Signature sent live to Big Screen!', 'success');
         };
 
         function renderBigScreen() {
@@ -756,7 +800,7 @@
                 stage.innerHTML = `
                     <div class="absolute inset-0 flex flex-col items-center justify-center text-[#0b2046]/70 gap-3">
                         <i class="fa-solid fa-pen-nib text-4xl animate-bounce text-[#0b2046]"></i>
-                        <p class="text-base font-bold">Waiting for attendee signatures...</p>
+                        <p class="text-base font-bold">Waiting for attendee signatures from Smart Tab...</p>
                     </div>
                 `;
                 return;
@@ -845,7 +889,7 @@
             if (signatures.length === 0) {
                 gallery.innerHTML = `
                     <div class="col-span-full py-12 text-center text-slate-500 text-sm">
-                        No signatures submitted yet. Open iPad view or click "+5 Test Signatures".
+                        No signatures submitted yet. Open Smart Tab view or click "+5 Test Signatures".
                     </div>
                 `;
                 return;
@@ -883,7 +927,7 @@
         window.confirmResetAll = function() {
             showConfirmModal(
                 'Clear All Signatures?',
-                'This will permanently delete all submitted signatures from the display wall across all devices.',
+                'This will permanently delete all submitted signatures from Firestore across all devices.',
                 async () => {
                     await clearAllSignaturesCloud();
                     showNotification('All signatures cleared.', 'info');
@@ -923,9 +967,9 @@
                 const newSig = {
                     id: 'sig_sample_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2, 5),
                     pngData: pngData,
-                    timestamp: Date.now(),
-                    randomX: Math.floor(Math.random() * 70) + 15,
-                    randomY: Math.floor(Math.random() * 55) + 20,
+                    timestamp: Date.now() + i,
+                    randomX: Math.floor(Math.random() * 65) + 18,
+                    randomY: Math.floor(Math.random() * 50) + 22,
                     rotation: Math.floor(Math.random() * 24) - 12,
                     duration: (4.5 + Math.random() * 3.5).toFixed(1) + 's'
                 };
@@ -934,6 +978,40 @@
             }
 
             showNotification(`Added ${count} sample signatures!`, 'success');
+        };
+
+        window.toggleFirebaseConfigModal = function() {
+            const modal = document.getElementById('firebase-modal');
+            const textarea = document.getElementById('firebase-config-json');
+            if (!modal) return;
+
+            if (modal.classList.contains('hidden')) {
+                const saved = localStorage.getItem(CUSTOM_FIREBASE_KEY) || '';
+                textarea.value = saved;
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        };
+
+        window.saveCustomFirebaseConfig = function() {
+            const textarea = document.getElementById('firebase-config-json');
+            const val = textarea.value.trim();
+            if (!val) {
+                localStorage.removeItem(CUSTOM_FIREBASE_KEY);
+                showNotification('Custom Firebase config cleared.', 'info');
+                toggleFirebaseConfigModal();
+                return;
+            }
+
+            try {
+                JSON.parse(val);
+                localStorage.setItem(CUSTOM_FIREBASE_KEY, val);
+                showNotification('Firebase Config saved! Reloading...', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } catch(e) {
+                showNotification('Invalid JSON object format!', 'error');
+            }
         };
 
         function showNotification(message, type = 'info') {
@@ -985,13 +1063,6 @@
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
-            try {
-                syncChannel = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
-                syncChannel.onmessage = () => refreshCurrentView();
-            } catch (e) {}
-
-            window.addEventListener('storage', () => refreshCurrentView());
-
             const urlParams = new URLSearchParams(window.location.search);
             const viewParam = urlParams.get('view');
             if (viewParam && ['pad', 'screen', 'admin'].includes(viewParam)) {
