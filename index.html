@@ -23,6 +23,35 @@
             text-shadow: 0 2px 4px rgba(255, 255, 255, 0.6);
         }
 
+        /* Auto-hiding header with smooth popout on hover or tap */
+        .auto-hide-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            transform: translateY(-92%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+            opacity: 0.15;
+        }
+
+        .auto-hide-header:hover,
+        .auto-hide-header:focus-within,
+        .auto-hide-header.expanded {
+            transform: translateY(0%);
+            opacity: 1;
+        }
+
+        /* Top trigger zone to make popping out responsive when approaching top edge */
+        .top-hover-zone {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            z-index: 49;
+        }
+
         /* High-End Studio Stage Backdrop */
         .htm-studio-bg {
             background: radial-gradient(circle at 50% 30%, #eef5fc 0%, #cbdcf2 35%, #9ab9e0 70%, #769bc9 100%);
@@ -88,8 +117,8 @@
 
         .floating-signature.finalized-state {
             animation: none !important;
-            filter: drop-shadow(0 0 6px rgba(11, 32, 70, 0.9)) drop-shadow(0 0 12px rgba(59, 130, 246, 0.6));
-            opacity: 0.98;
+            filter: drop-shadow(0 2px 4px rgba(11, 32, 70, 0.6));
+            opacity: 0.95;
         }
 
         .glass-panel {
@@ -104,28 +133,14 @@
             border: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow: 0 8px 32px rgba(11, 32, 70, 0.15);
         }
-
-        /* Sharp glowing stencil backdrop for finalized 20 mode */
-        .stencil-20-backdrop {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            z-index: 5;
-            opacity: 0;
-            transition: opacity 0.8s ease-in-out;
-        }
-
-        .stencil-20-backdrop.active {
-            opacity: 1;
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-slate-950 text-slate-100">
 
-    <header class="glass-panel sticky top-0 z-50 px-4 py-3 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80">
+    <!-- Invisible hover trigger zone at top of screen -->
+    <div class="top-hover-zone" onmouseenter="expandHeader()"></div>
+
+    <header id="main-header" class="auto-hide-header glass-panel px-4 py-3 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 shadow-2xl">
         <div class="flex items-center space-x-3">
             <div class="bg-gradient-to-tr from-blue-700 to-indigo-900 p-2.5 rounded-xl shadow-lg shadow-blue-500/20">
                 <i class="fa-solid fa-file-signature text-xl text-white"></i>
@@ -157,44 +172,50 @@
                 <span>Admin</span>
             </button>
         </nav>
+
+        <!-- Pull-down Handle for Touch Screen / Quick Toggle -->
+        <button onclick="toggleHeaderExpand()" class="absolute bottom-[-22px] left-1/2 -translate-x-1/2 bg-slate-900/95 border border-t-0 border-slate-700/80 px-4 py-0.5 rounded-b-xl text-slate-400 hover:text-white text-xs flex items-center gap-1.5 shadow-lg backdrop-blur-md cursor-pointer transition-colors group">
+            <i class="fa-solid fa-chevron-down text-[10px] group-hover:translate-y-0.5 transition-transform"></i>
+            <span class="text-[10px] uppercase font-bold tracking-wider">Menu</span>
+        </button>
     </header>
 
     <main class="flex-1 relative flex flex-col overflow-hidden">
 
-        <section id="view-pad" class="hidden flex-1 flex flex-col p-4 sm:p-6 max-w-4xl mx-auto w-full">
-            <div class="glass-panel rounded-2xl p-4 sm:p-6 flex-1 flex flex-col border border-slate-800 shadow-2xl">
-                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <section id="view-pad" class="hidden flex-1 flex flex-col p-4 sm:p-6 max-w-4xl mx-auto w-full pt-8">
+            <div class="flex-1 flex flex-col gap-4">
+                <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
-                            <span>Welcome Attendee</span> 👋
+                            <i class="fa-solid fa-pen-nib text-blue-400"></i> Sign the Anniversary Wall
                         </h2>
-                        <p class="text-xs sm:text-sm text-slate-400">Please sign below to join HTM PHARMACIES 20th Anniversary Wall.</p>
+                        <p class="text-xs sm:text-sm text-slate-400">Draw your signature below and tap submit to send it live to the big screen.</p>
                     </div>
 
-                    <!-- Ink Color Selection -->
-                    <div class="flex items-center space-x-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800">
-                        <span class="text-xs text-slate-400 pl-2">Ink:</span>
-                        <button onclick="setInkColor('#0b2046')" class="w-6 h-6 rounded-full bg-[#0b2046] border-2 border-white focus:scale-110 transition-transform" title="Dark Navy Ink"></button>
-                        <button onclick="setInkColor('#ffffff')" class="w-6 h-6 rounded-full bg-white border-2 border-slate-600 focus:scale-110 transition-transform" title="White Ink"></button>
-                        <button onclick="setInkColor('#1e40af')" class="w-6 h-6 rounded-full bg-blue-800 border-2 border-slate-600 focus:scale-110 transition-transform" title="Royal Blue Ink"></button>
-                        <button onclick="setInkColor('#dc2626')" class="w-6 h-6 rounded-full bg-red-600 border-2 border-slate-600 focus:scale-110 transition-transform" title="Red Ink"></button>
-                        <button onclick="setInkColor('#d97706')" class="w-6 h-6 rounded-full bg-amber-600 border-2 border-slate-600 focus:scale-110 transition-transform" title="Gold Ink"></button>
+                    <!-- Pen Indicator -->
+                    <div class="flex items-center space-x-2 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800">
+                        <span class="text-xs text-slate-400">Pen Color:</span>
+                        <div class="flex items-center gap-1.5 font-bold text-xs text-white">
+                            <span class="w-4 h-4 rounded-full bg-black border border-slate-500 shadow-sm"></span>
+                            <span>Black</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex-1 relative w-full bg-slate-900/90 rounded-xl border-2 border-dashed border-slate-700/80 overflow-hidden min-h-[320px]">
+                <!-- Clean White Signature Pad -->
+                <div class="flex-1 relative w-full bg-white rounded-2xl border-2 border-slate-300 shadow-inner overflow-hidden min-h-[340px]">
                     <canvas id="sig-canvas" class="w-full h-full block touch-none"></canvas>
-                    <div id="canvas-placeholder" class="absolute inset-0 pointer-events-none flex items-center justify-center text-slate-500 text-sm font-medium">
+                    <div id="canvas-placeholder" class="absolute inset-0 pointer-events-none flex items-center justify-center text-slate-400 text-sm sm:text-base font-semibold">
                         <i class="fa-solid fa-pen-nib mr-2"></i> Draw your signature here...
                     </div>
                 </div>
 
-                <div class="mt-4 flex items-center justify-between gap-3">
-                    <button onclick="clearPadCanvas()" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 font-semibold text-sm transition-all flex items-center gap-2">
+                <div class="mt-2 flex items-center justify-between gap-3">
+                    <button onclick="clearPadCanvas()" class="px-6 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 font-semibold text-sm transition-all flex items-center gap-2">
                         <i class="fa-solid fa-rotate-left"></i>
                         <span>Clear</span>
                     </button>
-                    <button onclick="submitSignature()" class="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-gradient-to-r from-blue-700 to-indigo-800 hover:from-blue-600 hover:to-indigo-700 active:scale-95 text-white font-bold text-base shadow-lg shadow-blue-900/30 transition-all flex items-center justify-center gap-2">
+                    <button onclick="submitSignature()" class="flex-1 sm:flex-none px-8 py-3.5 rounded-xl bg-gradient-to-r from-blue-700 to-indigo-800 hover:from-blue-600 hover:to-indigo-700 active:scale-95 text-white font-bold text-base shadow-lg shadow-blue-900/30 transition-all flex items-center justify-center gap-2">
                         <i class="fa-solid fa-paper-plane"></i>
                         <span>Submit Signature</span>
                     </button>
@@ -202,10 +223,40 @@
             </div>
         </section>
 
-        <section id="view-screen" class="hidden relative w-full h-[calc(100vh-65px)] htm-studio-bg overflow-hidden flex flex-col justify-between">
+        <section id="view-screen" class="hidden relative w-full h-screen htm-studio-bg overflow-hidden flex flex-col justify-between">
 
             <!-- Spotlight Ray Overlay -->
             <div class="spotlight-beams absolute inset-0 pointer-events-none z-0"></div>
+
+            <!-- Soft Low-Contrast 3D Block "20" Outline Guide (Aligned precisely with signatures) -->
+            <svg id="svg-outline-20" viewBox="0 0 100 100" preserveAspectRatio="none" class="absolute inset-0 w-full h-full pointer-events-none z-10 opacity-0 transition-opacity duration-1000">
+                <defs>
+                    <!-- Soft Low-Contrast Blue/White Soft Fills -->
+                    <linearGradient id="soft3DFill" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.20" />
+                        <stop offset="50%" stop-color="#93c5fd" stop-opacity="0.12" />
+                        <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.15" />
+                    </linearGradient>
+
+                    <linearGradient id="softExtrude" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#1e3a8a" stop-opacity="0.25" />
+                        <stop offset="100%" stop-color="#0b1736" stop-opacity="0.35" />
+                    </linearGradient>
+
+                    <linearGradient id="softBorder" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.5" />
+                        <stop offset="100%" stop-color="#60a5fa" stop-opacity="0.5" />
+                    </linearGradient>
+                </defs>
+
+                <!-- Extrusion Shadow Side -->
+                <path d="M 16.5,65.5 H 45.5 V 56.5 H 30.5 C 36.5,48.5 43.5,40.5 44.5,31.5 C 45.5,19.5 37.5,13.5 28.5,13.5 C 18.5,13.5 14.5,20.5 14.5,30.5 H 23.5 C 23.5,24.5 25.5,19.5 28.5,19.5 C 32.5,19.5 34.5,22.5 34.5,28.5 C 34.5,33.5 30.5,39.5 22.5,49.5 L 16.5,56.5 Z M 70,13.5 C 58,13.5 52,23.5 52,39.5 C 52,55.5 58,65.5 70,65.5 C 82,65.5 88,55.5 88,39.5 C 88,23.5 82,13.5 70,13.5 Z M 70,21.5 C 76,21.5 78,27.5 78,39.5 C 78,51.5 76,57.5 70,57.5 C 64,57.5 62,51.5 62,39.5 C 62,27.5 64,21.5 70,21.5 Z" 
+                      fill="url(#softExtrude)" fill-rule="evenodd" />
+
+                <!-- Front Face Soft Contour -->
+                <path d="M 15,64 H 44 V 55 H 29 C 35,47 42,39 43,30 C 44,18 36,12 27,12 C 17,12 13,19 13,29 H 22 C 22,23 24,18 27,18 C 31,18 33,21 33,27 C 33,32 29,38 21,48 L 15,55 Z M 70,12 C 58,12 52,22 52,38 C 52,54 58,64 70,64 C 82,64 88,54 88,38 C 88,22 82,12 70,12 Z M 70,20 C 76,20 78,26 78,38 C 78,50 76,56 70,56 C 64,56 62,50 62,38 C 62,26 64,20 70,20 Z" 
+                      fill="url(#soft3DFill)" fill-rule="evenodd" stroke="url(#softBorder)" stroke-width="0.6" stroke-linejoin="round" />
+            </svg>
 
             <!-- Header Bar -->
             <div class="relative z-20 p-4 sm:p-6 flex justify-between items-center pointer-events-none">
@@ -219,27 +270,6 @@
                         Collecting Signatures
                     </div>
                 </div>
-            </div>
-
-            <!-- Vector Stencil Backdrop for Finalized 20 Mode -->
-            <div id="sharp-20-stencil" class="stencil-20-backdrop">
-                <svg class="w-full max-w-4xl h-auto max-h-[55vh] px-4" viewBox="0 0 1000 500" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#0b2046" stop-opacity="0.25" />
-                            <stop offset="50%" stop-color="#1e40af" stop-opacity="0.35" />
-                            <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.25" />
-                        </linearGradient>
-                        <filter id="stencilGlow" x="-20%" y="-20%" width="140%" height="140%">
-                            <feGaussianBlur stdDeviation="6" result="blur" />
-                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                        </filter>
-                    </defs>
-                    <path d="M 120 170 C 120 90, 230 70, 310 90 C 390 110, 410 180, 390 230 C 360 300, 240 370, 140 420 L 420 420 L 420 460 L 100 460 L 100 410 C 220 350, 330 280, 340 220 C 350 180, 330 130, 280 120 C 220 110, 170 130, 160 180 Z" 
-                          fill="url(#glowGrad)" stroke="#0b2046" stroke-width="3" filter="url(#stencilGlow)" opacity="0.85" />
-                    <path d="M 680 70 C 810 70, 880 150, 880 260 C 880 370, 810 460, 680 460 C 550 460, 480 370, 480 260 C 480 150, 550 70, 680 70 Z M 680 130 C 600 130, 550 180, 550 260 C 550 340, 600 400, 680 400 C 760 400, 810 340, 810 260 C 810 180, 760 130, 680 130 Z" 
-                          fill="url(#glowGrad)" stroke="#0b2046" stroke-width="3" filter="url(#stencilGlow)" opacity="0.85" />
-                </svg>
             </div>
 
             <!-- Floating Display Stage -->
@@ -380,28 +410,30 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'htm-pharmacies-20th';
         const CUSTOM_FIREBASE_KEY = 'htm_custom_firebase_config_v1';
 
-        // High precision matrix covering body and inner contour of 2 and 0
-        const TARGET_GRID_20 = [
-            // DIGIT '2'
-            {x: 18, y: 22}, {x: 21, y: 18}, {x: 25, y: 16}, {x: 29, y: 15}, {x: 33, y: 16}, {x: 37, y: 18}, {x: 40, y: 22}, {x: 41, y: 26},
-            {x: 22, y: 22}, {x: 26, y: 20}, {x: 30, y: 19}, {x: 34, y: 20}, {x: 38, y: 23},
-            {x: 40, y: 31}, {x: 38, y: 36}, {x: 35, y: 41}, {x: 32, y: 46}, {x: 28, y: 51}, {x: 24, y: 56}, {x: 20, y: 61}, {x: 16, y: 66},
-            {x: 36, y: 32}, {x: 33, y: 37}, {x: 29, y: 42}, {x: 25, y: 47}, {x: 21, y: 52}, {x: 17, y: 57}, {x: 14, y: 62},
-            {x: 13, y: 68}, {x: 17, y: 68}, {x: 21, y: 68}, {x: 25, y: 68}, {x: 29, y: 68}, {x: 33, y: 68}, {x: 37, y: 68}, {x: 41, y: 68},
-            {x: 15, y: 64}, {x: 19, y: 64}, {x: 23, y: 64}, {x: 27, y: 64}, {x: 31, y: 64}, {x: 35, y: 64}, {x: 39, y: 64},
+        // Precise dense grid of points FILLING EXACTLY inside the 3D '2' and '0' SVG volume boundaries
+        const TARGET_FILL_POINTS_20 = [
+            // ==================== DIGIT '2' EXACT INNER GEOMETRY ====================
+            // Top Arch
+            {x: 27, y: 15}, {x: 21, y: 15}, {x: 33, y: 15}, {x: 17, y: 18}, {x: 37, y: 18},
+            {x: 15, y: 23}, {x: 39, y: 23}, {x: 39, y: 27}, {x: 36, y: 31}, {x: 32, y: 35},
+            // Diagonal Stem
+            {x: 28, y: 38}, {x: 25, y: 42}, {x: 30, y: 42}, {x: 21, y: 46}, {x: 26, y: 46},
+            {x: 18, y: 50}, {x: 23, y: 50}, {x: 16, y: 53}, {x: 20, y: 53},
+            // Bottom Horizontal Base
+            {x: 16, y: 57}, {x: 21, y: 57}, {x: 26, y: 57}, {x: 31, y: 57}, {x: 36, y: 57}, {x: 41, y: 57},
+            {x: 16, y: 61}, {x: 21, y: 61}, {x: 26, y: 61}, {x: 31, y: 61}, {x: 36, y: 61}, {x: 41, y: 61},
 
-            // DIGIT '0'
-            {x: 58, y: 16}, {x: 63, y: 15}, {x: 68, y: 14}, {x: 73, y: 14}, {x: 78, y: 15}, {x: 83, y: 16},
-            {x: 86, y: 21}, {x: 88, y: 27}, {x: 89, y: 34}, {x: 89, y: 42}, {x: 89, y: 50}, {x: 88, y: 57}, {x: 86, y: 62},
-            {x: 83, y: 66}, {x: 78, y: 68}, {x: 73, y: 69}, {x: 68, y: 69}, {x: 63, y: 68}, {x: 58, y: 66},
-            {x: 55, y: 62}, {x: 53, y: 57}, {x: 52, y: 50}, {x: 52, y: 42}, {x: 52, y: 34}, {x: 53, y: 27}, {x: 55, y: 21},
-            {x: 61, y: 22}, {x: 68, y: 20}, {x: 75, y: 20}, {x: 80, y: 22},
-            {x: 83, y: 28}, {x: 84, y: 35}, {x: 84, y: 43}, {x: 84, y: 51}, {x: 82, y: 57},
-            {x: 79, y: 62}, {x: 72, y: 63}, {x: 65, y: 63}, {x: 60, y: 62},
-            {x: 57, y: 57}, {x: 56, y: 51}, {x: 56, y: 43}, {x: 56, y: 35}, {x: 57, y: 28}
+            // ==================== DIGIT '0' EXACT INNER GEOMETRY ====================
+            // Top Wall
+            {x: 62, y: 15}, {x: 66, y: 15}, {x: 70, y: 15}, {x: 74, y: 15}, {x: 78, y: 15},
+            // Left Wall Curve
+            {x: 56, y: 20}, {x: 57, y: 25}, {x: 55, y: 30}, {x: 57, y: 35}, {x: 55, y: 40}, {x: 57, y: 45}, {x: 55, y: 50}, {x: 57, y: 55},
+            // Right Wall Curve
+            {x: 84, y: 20}, {x: 83, y: 25}, {x: 85, y: 30}, {x: 83, y: 35}, {x: 85, y: 40}, {x: 83, y: 45}, {x: 85, y: 50}, {x: 83, y: 55},
+            // Bottom Wall
+            {x: 62, y: 60}, {x: 66, y: 60}, {x: 70, y: 60}, {x: 74, y: 60}, {x: 78, y: 60}
         ];
 
-        let currentInkColor = '#0b2046';
         let isDrawing = false;
         let canvas = null;
         let ctx = null;
@@ -419,7 +451,6 @@
         async function initFirebase() {
             updateConnBadge('connecting', 'Connecting Firestore...');
 
-            // Pre-configured Firebase keys for htm-signature-wall
             let firebaseConfig = {
                 "apiKey": "AIzaSyBWNSCmlveUIpu7ySEmaJ2VH1MoPKyB66s",
                 "authDomain": "htm-signature-wall.firebaseapp.com",
@@ -449,28 +480,32 @@
                     const userCred = await signInWithCustomToken(auth, __initial_auth_token);
                     currentUser = userCred.user;
                 } else {
-                    const userCred = await signInAnonymously(auth);
-                    currentUser = userCred.user;
+                    try {
+                        const userCred = await signInAnonymously(auth);
+                        currentUser = userCred.user;
+                    } catch (authErr) {
+                        console.warn("Anonymous Auth Warning:", authErr);
+                    }
                 }
 
-                if (!currentUser) return;
-
-                updateConnBadge('connected', '🔥 Firestore Sync Active');
-                setupFirestoreListeners();
+                if (currentUser) {
+                    updateConnBadge('connected', '🔥 Firestore Sync Active');
+                    setupFirestoreListeners();
+                } else {
+                    updateConnBadge('offline', 'Local Memory Mode');
+                }
 
             } catch (err) {
                 console.error("Firebase Initialization Error:", err);
-                updateConnBadge('offline', 'Firebase Auth Error');
+                updateConnBadge('offline', 'Local Memory Mode');
             }
         }
 
         function setupFirestoreListeners() {
             if (!db || !currentUser) return;
 
-            // STRICT PATH RULE 1: Public data path
             const sigsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'signatures');
             
-            // RULE 2: Simple query without complex indexes
             onSnapshot(sigsColRef, (snapshot) => {
                 const loaded = [];
                 snapshot.forEach(docSnap => {
@@ -517,26 +552,30 @@
                 badge.className = 'flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700';
                 badge.querySelector('span').className = 'w-2 h-2 rounded-full bg-slate-500';
                 if (syncStatusLabel) {
-                    syncStatusLabel.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span> Disconnected`;
-                    syncStatusLabel.className = 'text-lg font-bold text-slate-400 mt-1 flex items-center gap-2';
+                    syncStatusLabel.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Local Fallback Mode`;
+                    syncStatusLabel.className = 'text-lg font-bold text-amber-400 mt-1 flex items-center gap-2';
                 }
             }
         }
 
         async function saveSignatureToCloud(newSig) {
             if (!db || !currentUser) {
-                // Local fallback
                 memorySignatures.push(newSig);
                 refreshCurrentView();
+                showNotification('Signature added (Local Mode)', 'success');
                 return;
             }
 
             try {
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'signatures', newSig.id);
                 await setDoc(docRef, newSig);
+                showNotification('Signature sent live to Big Screen!', 'success');
             } catch (e) {
                 console.error("Error saving signature to Firestore:", e);
-                showNotification('Failed to send signature to cloud', 'error');
+                // Fallback to local memory display so drawing is never lost
+                memorySignatures.push(newSig);
+                refreshCurrentView();
+                showNotification('Cloud permission error. Check Firebase setup guide!', 'error');
             }
         }
 
@@ -552,6 +591,8 @@
                 await deleteDoc(docRef);
             } catch(e) {
                 console.error("Error deleting signature from Firestore:", e);
+                memorySignatures = memorySignatures.filter(s => s.id !== id);
+                refreshCurrentView();
             }
         }
 
@@ -567,6 +608,8 @@
                 await setDoc(docRef, { isFinalized: isFinalized, updatedAt: Date.now() }, { merge: true });
             } catch (e) {
                 console.error("Error setting finalized state:", e);
+                memoryIsFinalized = isFinalized;
+                refreshCurrentView();
             }
         }
 
@@ -587,6 +630,9 @@
                 await setDoc(configDocRef, { isFinalized: false, updatedAt: Date.now() });
             } catch(e) {
                 console.error("Error clearing signatures:", e);
+                memorySignatures = [];
+                memoryIsFinalized = false;
+                refreshCurrentView();
             }
         }
 
@@ -639,8 +685,8 @@
             ctx = canvas.getContext('2d');
             ctx.scale(dpr, dpr);
             
-            ctx.strokeStyle = currentInkColor;
-            ctx.lineWidth = 3.5;
+            ctx.strokeStyle = '#000000'; // Locked Black Ink
+            ctx.lineWidth = 4.0;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
 
@@ -683,11 +729,6 @@
             canvas.onpointerup = stopDrawing;
             canvas.onpointercancel = stopDrawing;
         }
-
-        window.setInkColor = function(color) {
-            currentInkColor = color;
-            if (ctx) ctx.strokeStyle = color;
-        };
 
         window.clearPadCanvas = function() {
             if (!canvas || !ctx) return;
@@ -762,9 +803,8 @@
                 duration: (4.5 + Math.random() * 3.5).toFixed(1) + 's'
             };
 
-            await saveSignatureToCloud(newSignature);
             clearPadCanvas();
-            showNotification('Signature sent live to Big Screen!', 'success');
+            await saveSignatureToCloud(newSignature);
         };
 
         function renderBigScreen() {
@@ -774,22 +814,24 @@
             const signatures = memorySignatures;
             const isFinalized = memoryIsFinalized;
 
-            const countEl = document.getElementById('screen-count');
-            if (countEl) countEl.textContent = signatures.length;
-
-            const stencilEl = document.getElementById('sharp-20-stencil');
-            if (stencilEl) {
+            const outlineSvg = document.getElementById('svg-outline-20');
+            if (outlineSvg) {
                 if (isFinalized) {
-                    stencilEl.classList.add('active');
+                    outlineSvg.classList.remove('opacity-0');
+                    outlineSvg.classList.add('opacity-35'); // Soft low contrast backdrop guide
                 } else {
-                    stencilEl.classList.remove('active');
+                    outlineSvg.classList.remove('opacity-35');
+                    outlineSvg.classList.add('opacity-0');
                 }
             }
+
+            const countEl = document.getElementById('screen-count');
+            if (countEl) countEl.textContent = signatures.length;
 
             const badge = document.getElementById('screen-status-badge');
             if (badge) {
                 if (isFinalized) {
-                    badge.textContent = 'FINALIZED IN "20" SHAPE';
+                    badge.textContent = 'FILLED IN 3D "20" SHAPE';
                     badge.className = 'glass-panel-light px-5 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider text-blue-900 border border-blue-400';
                 } else {
                     badge.textContent = 'COLLECTING SIGNATURES';
@@ -810,13 +852,26 @@
             let renderList = [];
 
             if (isFinalized) {
-                const totalTargetPoints = TARGET_GRID_20.length;
-                for (let i = 0; i < totalTargetPoints; i++) {
+                const totalTargetPoints = TARGET_FILL_POINTS_20.length;
+                
+                // Distribute signatures evenly inside the filled volume of 3D '2' and '0'
+                const displayCount = Math.max(signatures.length, totalTargetPoints);
+                for (let i = 0; i < displayCount; i++) {
                     const srcSig = signatures[i % signatures.length];
+                    const basePoint = TARGET_FILL_POINTS_20[i % totalTargetPoints];
+
+                    // Gentle positional micro-jitter for organic alignment inside 3D font
+                    const jitterX = ((i * 17) % 3) - 1.5;
+                    const jitterY = ((i * 23) % 3) - 1.5;
+
                     renderList.push({
                         id: `final_${i}`,
                         pngData: srcSig.pngData,
-                        targetPos: TARGET_GRID_20[i]
+                        targetPos: {
+                            x: Math.max(12, Math.min(88, basePoint.x + jitterX)),
+                            y: Math.max(12, Math.min(68, basePoint.y + jitterY))
+                        },
+                        rotation: ((i * 13) % 16) - 8
                     });
                 }
             } else {
@@ -842,7 +897,7 @@
                     imgEl = document.createElement('img');
                     imgEl.dataset.id = item.id;
                     imgEl.src = item.pngData;
-                    imgEl.className = 'floating-signature h-10 sm:h-12 md:h-14 object-contain';
+                    imgEl.className = 'floating-signature h-8 sm:h-10 md:h-12 object-contain';
                     stage.appendChild(imgEl);
                 }
 
@@ -853,7 +908,7 @@
                     imgEl.classList.add('finalized-state');
                     imgEl.style.left = `${item.targetPos.x}%`;
                     imgEl.style.top = `${item.targetPos.y}%`;
-                    imgEl.style.transform = `translate(-50%, -50%) scale(0.95)`;
+                    imgEl.style.transform = `translate(-50%, -50%) rotate(${item.rotation}deg) scale(0.55)`;
                 } else {
                     imgEl.classList.remove('finalized-state');
                     imgEl.classList.add('random-state');
@@ -882,7 +937,7 @@
             const btnFinalizeText = document.getElementById('btn-finalize-text');
 
             if (adminCount) adminCount.textContent = signatures.length;
-            if (adminStateLabel) adminStateLabel.textContent = isFinalized ? 'Finalized ("20" Shape)' : 'Random Floating';
+            if (adminStateLabel) adminStateLabel.textContent = isFinalized ? 'Finalized (Inside 3D "20")' : 'Random Floating';
             if (btnFinalizeText) btnFinalizeText.textContent = isFinalized ? 'Reset to Random Floating' : 'Finalize & Form "20"';
 
             gallery.innerHTML = '';
@@ -922,7 +977,7 @@
         window.toggleFinalizeState = async function() {
             const currentState = memoryIsFinalized;
             await setFinalizedStateCloud(!currentState);
-            showNotification(!currentState ? 'Signatures assembled into "20"!' : 'Returned to floating mode.', 'info');
+            showNotification(!currentState ? 'Signatures assembled inside 3D "20"!' : 'Returned to floating mode.', 'info');
         };
 
         window.confirmResetAll = function() {
@@ -937,7 +992,6 @@
         };
 
         window.generateSampleSignatures = async function(count = 5) {
-            const colors = ['#0b2046', '#1e40af', '#dc2626', '#d97706', '#047857'];
             const sampleCanvas = document.createElement('canvas');
             sampleCanvas.width = 300;
             sampleCanvas.height = 150;
@@ -945,10 +999,9 @@
 
             for (let i = 0; i < count; i++) {
                 ctxSample.clearRect(0, 0, 300, 150);
-                const color = colors[Math.floor(Math.random() * colors.length)];
 
-                ctxSample.strokeStyle = color;
-                ctxSample.lineWidth = 3.5;
+                ctxSample.strokeStyle = '#000000'; // Black ink for test signatures
+                ctxSample.lineWidth = 4.0;
                 ctxSample.lineCap = 'round';
                 ctxSample.lineJoin = 'round';
 
@@ -977,8 +1030,6 @@
 
                 await saveSignatureToCloud(newSig);
             }
-
-            showNotification(`Added ${count} sample signatures!`, 'success');
         };
 
         window.toggleFirebaseConfigModal = function() {
@@ -1079,6 +1130,25 @@
                     initCanvas();
                 }
             });
+        });
+
+        // Header Popout Controls
+        window.expandHeader = function() {
+            const header = document.getElementById('main-header');
+            if (header) header.classList.add('expanded');
+        };
+
+        window.toggleHeaderExpand = function() {
+            const header = document.getElementById('main-header');
+            if (header) header.classList.toggle('expanded');
+        };
+
+        document.addEventListener('mousemove', (e) => {
+            const header = document.getElementById('main-header');
+            if (!header) return;
+            if (e.clientY > 130 && !header.contains(e.target)) {
+                header.classList.remove('expanded');
+            }
         });
     </script>
 </body>
