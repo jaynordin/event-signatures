@@ -52,33 +52,6 @@
             z-index: 49;
         }
 
-        /* High-End Studio Stage Backdrop */
-        .htm-studio-bg {
-            background: radial-gradient(circle at 50% 30%, #eef5fc 0%, #cbdcf2 35%, #9ab9e0 70%, #769bc9 100%);
-            position: relative;
-        }
-
-        /* Top Spotlight Beams */
-        .spotlight-beams {
-            background: repeating-linear-gradient(
-                90deg,
-                transparent 0%,
-                rgba(255, 255, 255, 0.15) 8%,
-                transparent 16%,
-                rgba(255, 255, 255, 0.25) 24%,
-                transparent 32%
-            );
-            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 70%);
-            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 70%);
-        }
-
-        /* Floor reflection surface line */
-        .studio-floor {
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3) 0%, rgba(180, 205, 235, 0.6) 100%);
-            border-top: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 -10px 30px rgba(255, 255, 255, 0.3);
-        }
-
         #sig-canvas {
             touch-action: none;
             cursor: crosshair;
@@ -223,39 +196,12 @@
             </div>
         </section>
 
-        <section id="view-screen" class="hidden relative w-full h-screen htm-studio-bg overflow-hidden flex flex-col justify-between">
+        <section id="view-screen" class="hidden relative w-full h-screen bg-slate-950 overflow-hidden flex flex-col justify-between">
 
-            <!-- Spotlight Ray Overlay -->
-            <div class="spotlight-beams absolute inset-0 pointer-events-none z-0"></div>
-
-            <!-- Soft Low-Contrast 3D Block "20" Outline Guide -->
-            <svg id="svg-outline-20" viewBox="0 0 100 100" preserveAspectRatio="none" class="absolute inset-0 w-full h-full pointer-events-none z-10 opacity-0 transition-opacity duration-1000">
-                <defs>
-                    <linearGradient id="soft3DFill" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22" />
-                        <stop offset="50%" stop-color="#93c5fd" stop-opacity="0.15" />
-                        <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.18" />
-                    </linearGradient>
-
-                    <linearGradient id="softExtrude" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#1e3a8a" stop-opacity="0.25" />
-                        <stop offset="100%" stop-color="#0b1736" stop-opacity="0.35" />
-                    </linearGradient>
-
-                    <linearGradient id="softBorder" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.5" />
-                        <stop offset="100%" stop-color="#60a5fa" stop-opacity="0.5" />
-                    </linearGradient>
-                </defs>
-
-                <!-- Extrusion Shadow Side -->
-                <path d="M 16.5,63.5 H 45.5 V 54.5 H 30.5 C 36.5,46.5 43.5,38.5 44.5,29.5 C 45.5,17.5 37.5,11.5 28.5,11.5 C 18.5,11.5 14.5,18.5 14.5,28.5 H 23.5 C 23.5,22.5 25.5,17.5 28.5,17.5 C 32.5,17.5 34.5,20.5 34.5,26.5 C 34.5,31.5 30.5,37.5 22.5,47.5 L 16.5,54.5 Z M 70,11.5 C 58,11.5 51,21.5 51,37.5 C 51,53.5 58,63.5 70,63.5 C 82,63.5 89,53.5 89,37.5 C 89,21.5 82,11.5 70,11.5 Z M 70,19.5 C 76,19.5 79,25.5 79,37.5 C 79,49.5 76,55.5 70,55.5 C 64,55.5 61,49.5 61,37.5 C 61,25.5 64,19.5 70,19.5 Z" 
-                      fill="url(#softExtrude)" fill-rule="evenodd" />
-
-                <!-- Front Face Soft Contour -->
-                <path d="M 15,62 H 44 V 53 H 29 C 35,45 42,37 43,28 C 44,16 36,10 27,10 C 17,10 13,17 13,27 H 22 C 22,21 24,16 27,16 C 31,16 33,19 33,25 C 33,30 29,36 21,46 L 15,53 Z M 70,10 C 58,10 51,20 51,36 C 51,52 58,62 70,62 C 82,62 89,52 89,36 C 89,20 82,10 70,10 Z M 70,18 C 76,18 79,24 79,36 C 79,48 76,54 70,54 C 64,54 61,48 61,36 C 61,24 64,18 70,18 Z" 
-                      fill="url(#soft3DFill)" fill-rule="evenodd" stroke="url(#softBorder)" stroke-width="0.6" stroke-linejoin="round" />
-            </svg>
+            <!-- Embedded Image Display replacing the HTML Stage Backdrop -->
+            <div class="absolute inset-0 w-full h-full flex items-center justify-center p-4 z-0">
+                <img id="anniversary-png" src="HTM 20th Anniversary.png" alt="HTM 20th Anniversary" class="w-full h-full object-contain pointer-events-none select-none">
+            </div>
 
             <!-- Header Bar -->
             <div class="relative z-20 p-4 sm:p-6 flex justify-between items-center pointer-events-none">
@@ -274,26 +220,6 @@
             <!-- Floating Display Stage -->
             <div id="display-stage" class="absolute inset-0 w-full h-full z-10 overflow-hidden pointer-events-none"></div>
 
-            <!-- Studio Floor Branding -->
-            <div class="relative z-20 w-full studio-floor pt-6 pb-8 flex flex-col items-center justify-center text-center">
-                <h2 class="brand-heading text-3xl sm:text-5xl md:text-6xl font-black tracking-widest leading-none">
-                    HTM PHARMACIES
-                </h2>
-
-                <div class="flex items-center gap-3 mt-2">
-                    <span class="w-12 sm:w-20 h-[2px] bg-[#0b2046]"></span>
-                    <p class="brand-heading text-xs sm:text-base font-extrabold tracking-[0.3em] uppercase">
-                        EST 2006
-                    </p>
-                    <span class="w-12 sm:w-20 h-[2px] bg-[#0b2046]"></span>
-                </div>
-
-                <div class="opacity-15 transform scale-y-[-1] blur-[1px] pointer-events-none select-none mt-1 hidden sm:block">
-                    <h2 class="brand-heading text-3xl sm:text-5xl md:text-6xl font-black tracking-widest leading-none">
-                        HTM PHARMACIES
-                    </h2>
-                </div>
-            </div>
         </section>
 
         <section id="view-admin" class="hidden flex-1 p-4 sm:p-6 max-w-6xl mx-auto w-full space-y-6">
@@ -815,17 +741,6 @@
             const signatures = memorySignatures;
             const isFinalized = memoryIsFinalized;
 
-            const outlineSvg = document.getElementById('svg-outline-20');
-            if (outlineSvg) {
-                if (isFinalized) {
-                    outlineSvg.classList.remove('opacity-0');
-                    outlineSvg.classList.add('opacity-35');
-                } else {
-                    outlineSvg.classList.remove('opacity-35');
-                    outlineSvg.classList.add('opacity-0');
-                }
-            }
-
             const countEl = document.getElementById('screen-count');
             if (countEl) countEl.textContent = signatures.length;
 
@@ -850,16 +765,7 @@
                 return;
             }
 
-            /*
-             * FINALIZED MODE
-             *
-             * The previous version positioned HTML <img> elements near the
-             * target points. That could leave parts of a signature outside
-             * the "20". This version uses a real SVG clipPath built from
-             * the same 20-shape geometry as the artwork. Every signature is
-             * placed inside the SVG and clipped to the 20, so no signature
-             * can cross outside the number.
-             */
+            /* FINALIZED MODE */
             if (isFinalized) {
                 const shapePath = 'M 15,62 H 44 V 53 H 29 C 35,45 42,37 43,28 C 44,16 36,10 27,10 C 17,10 13,17 13,27 H 22 C 22,21 24,16 27,16 C 31,16 33,19 33,25 C 33,30 29,36 21,46 L 15,53 Z M 70,10 C 58,10 51,20 51,36 C 51,52 58,62 70,62 C 82,62 89,52 89,36 C 89,20 82,10 70,10 Z M 70,18 C 76,18 79,24 79,36 C 79,48 76,54 70,54 C 64,54 61,48 61,36 C 61,24 64,18 70,18 Z';
                 const totalTargetPoints = TARGET_FILL_POINTS_20.length;
@@ -883,16 +789,12 @@
                     const srcSig = signatures[i % signatures.length];
                     const basePoint = TARGET_FILL_POINTS_20[i % totalTargetPoints];
 
-                    // Small deterministic jitter keeps repeated signatures
-                    // organic while keeping them centred on the 20 geometry.
                     const jitterX = ((i * 17) % 2.4) - 1.2;
                     const jitterY = ((i * 23) % 2.4) - 1.2;
                     const x = basePoint.x + jitterX;
                     const y = basePoint.y + jitterY;
                     const rotation = ((i * 13) % 16) - 8;
 
-                    // Signature size in the 0-100 SVG coordinate system.
-                    // Larger width makes the 20 look densely handwritten.
                     const width = 9.5 + (i % 3) * 1.2;
                     const height = 4.2 + (i % 2) * 0.8;
 
